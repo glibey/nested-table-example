@@ -1,0 +1,140 @@
+<div class="container">
+  <input
+    [hidden]="!isEditActive"
+    type="text"
+    class="form-control mb-4"
+    placeholder="Search by name"
+    #searchInput
+  />
+
+  <cdk-virtual-scroll-viewport [itemSize]="20">
+    <table class="table table-hover table-bordered">
+      <thead>
+        <tr>
+          <th>
+            <input
+              class="p-2"
+              type="checkbox"
+              [(ngModel)]="selectAll"
+              (ngModelChange)="toggleSelectAll()"
+            />
+          </th>
+          <th
+            [resizeColumn]="true"
+            [index]="1"
+            [minWidth]="100"
+            [maxWidth]="300"
+          >
+            Name
+          </th>
+          <th
+            [resizeColumn]="true"
+            [index]="2"
+            [minWidth]="100"
+            [maxWidth]="300"
+          >
+            Type
+          </th>
+          <th
+            [resizeColumn]="true"
+            [index]="3"
+            [minWidth]="100"
+            [maxWidth]="500"
+          >
+            Email
+          </th>
+          <th
+            [resizeColumn]="true"
+            [index]="4"
+            [minWidth]="100"
+            [maxWidth]="300"
+          >
+            Phone Number
+          </th>
+          <th
+            [resizeColumn]="true"
+            [index]="5"
+            [minWidth]="100"
+            [maxWidth]="300"
+          >
+            Company Name
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody class="table-hover">
+        <ng-container *cdkVirtualFor="let row of filteredRows; let i = index">
+          <tr
+            class="row-data"
+            [ngClass]="{ 'table-dark': selectedRows.includes(row) }"
+            (mouseover)="hoveredIndex = i"
+            (mouseleave)="hoveredIndex = -1"
+          >
+            <td>
+              <input
+                type="checkbox"
+                [(ngModel)]="row.selected"
+                (ngModelChange)="handleRowSelection(row)"
+              />
+            </td>
+            <td>
+              <i
+                class="bi bi-arrow-right-short open"
+                [ngClass]="{ active: row.expanded }"
+                (click)="toggleRow(row)"
+              ></i>
+              {{ row.name }}
+            </td>
+            <td>{{ row.type }}</td>
+            <td>{{ row.email }}</td>
+            <td>{{ row.phoneNo }}</td>
+            <td>{{ row.companyName }}</td>
+            <td width="100" class="actions">
+              <ng-container *ngIf="!selectedRows.length && hoveredIndex === i">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm me-2"
+                  (click)="removeRowItem(row)"
+                >
+                  <i class="bi bi-x-circle"></i>
+                </button>
+                <button
+                  *ngIf="isEditActive"
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="editRowItem(row)"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </ng-container>
+            </td>
+          </tr>
+          <tr *ngIf="row.expanded">
+            <td colspan="7" class="nested-table">
+              <app-nested-table
+                *ngIf="row.children; else noData"
+                [data]="row.children"
+                [selectedRows]="selectedRows"
+                [isEditActive]="false"
+                (rowSelected)="handleRowSelection($event)"
+              ></app-nested-table>
+
+              <ng-template #noData>
+                <div class="alert alert-info m-1 px-2 py-2" role="alert">
+                  <i class="bi bi-info-circle"></i>
+                  No records found
+                </div>
+              </ng-template>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </cdk-virtual-scroll-viewport>
+
+  <div *ngIf="selectedRows.length > 0 && isEditActive">
+    <button class="btn btn-danger" (click)="deleteSelectedRows()">
+      Delete multiple
+    </button>
+  </div>
+</div>
